@@ -20,7 +20,7 @@
 ## 3. 결과 (Results)
 `pgtest` 실행 결과, 코드 및 데이터 섹션의 가상 주소가 유효한 물리 주소로 정확하게 변환되었으며, 페이지 테이블 인덱싱 및 총 사용 페이지 수(6개)가 예상대로 출력됨을 확인하였다.
 
-![Execution Result](images/image_0a4acc.png)
+![Execution Result](images/image-hw4-01.png)
 
 ## 4. 기술적 성과 (Technical Accomplishment)
 * **RISC-V Paging Mastery:** 3단계 페이지 테이블 구조와 VA-PA 변환의 모든 과정을 코드로 직접 증명.
