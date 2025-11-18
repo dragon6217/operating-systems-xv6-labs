@@ -107,3 +107,59 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+
+// --- [HW4] Paging System Calls ---
+
+/**
+ * @brief Converts a virtual address to a physical address.
+ * @return Physical address, or 0 if not mapped.
+ */
+uint64
+sys_phyaddr(void)
+{
+  uint64 va;
+  argaddr(0, &va); // Get the virtual address argument
+
+  struct proc *p = myproc();
+  
+  // walkaddr returns the physical address of the PAGE start.
+  uint64 pa_start = walkaddr(p->pagetable, va);
+  
+  if(pa_start == 0)
+    return 0;
+
+  // Add the offset (lowest 12 bits) to get the exact physical address.
+  return pa_start | (va & 0xFFF);
+}
+
+/**
+ * @brief Returns the Page Table Index for a given level.
+ * Level 2: bits 30-38
+ * Level 1: bits 21-29
+ * Level 0: bits 12-20
+ */
+uint64
+sys_ptidx(void)
+{
+  uint64 va;
+  int level;
+
+  argaddr(0, &va);
+  argint(1, &level);
+
+  // PX macro handles the bit shifting and masking.
+  // defined in kernel/riscv.h: #define PX(level, va) ...
+  return PX(level, va);
+}
+
+/**
+ * @brief Counts the total number of mapped user pages.
+ */
+uint64
+sys_pgcnt(void)
+{
+  // Call the helper function implemented in vm.c
+  return count_pages(myproc()->pagetable);
+}

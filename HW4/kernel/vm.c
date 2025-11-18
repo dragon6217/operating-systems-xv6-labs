@@ -484,3 +484,48 @@ ismapped(pagetable_t pagetable, uint64 va)
   }
   return 0;
 }
+
+
+
+// --- [HW4] Page Counting Helper ---
+
+/**
+ * @brief Recursively counts valid pages in the page table.
+ * * @param pagetable The current level page table to scan.
+ * @param level The depth level (2 -> 1 -> 0).
+ * @return The number of valid leaf pages found.
+ */
+uint64
+count_pages_recursive(pagetable_t pagetable, int level)
+{
+  uint64 count = 0;
+
+  // Iterate over all 512 entries in the current page table
+  for(int i = 0; i < 512; i++){
+    pte_t pte = pagetable[i];
+    
+    // If PTE is valid
+    if(pte & PTE_V){
+      // If we are at the leaf level (Level 0), we found a valid page.
+      if(level == 0){
+        count++;
+      } 
+      // If we are at intermediate levels (Level 2 or 1), recursive dive.
+      // But we must check if it points to a child page table (R/W/X bits should be 0 for directory).
+      else if((pte & (PTE_R|PTE_W|PTE_X)) == 0){
+        uint64 child_pa = PTE2PA(pte);
+        count += count_pages_recursive((pagetable_t)child_pa, level - 1);
+      }
+    }
+  }
+  return count;
+}
+
+/**
+ * @brief Wrapper function to start counting from the root (Level 2).
+ */
+uint64
+count_pages(pagetable_t pagetable)
+{
+  return count_pages_recursive(pagetable, 2);
+}
