@@ -1,4 +1,4 @@
-# 운영체제 커널 (xv6-RISC-V) 내부 분석 및 구현 연구
+# Operating System Kernel (xv6-RISC-V) Internals Analysis and Implementation Labs
 
 이 저장소는 MIT 6.S081 운영체제 교육용 커널인 **xv6 (RISC-V 아키텍처)**를 기반으로, 프로세스 관리, 메모리 관리, 스케줄링 등 OS의 핵심 메커니즘을 심층 분석하고 확장한 프로젝트 모음입니다.
 
