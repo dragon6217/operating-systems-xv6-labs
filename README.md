@@ -16,12 +16,12 @@
 
 총 4개의 핵심 과제를 통해 **프로세스 제어부터 메모리 관리까지**의 영역을 모두 커버했습니다.
 
-| Project | 주제 (Topic) | 핵심 기술 (Key Tech) | 성과 (Achievement Focus) | 상세 보기 |
-| :---: | :--- | :--- | :--- | :---: |
-| **HW1** | **User Shell** | Fork/Exec, Piping, File Descriptor Management | 복합 쉘 문법 해석 및 유저 레벨 프로세스 흐름 제어 | [Detail View](HW1/README.md) |
-| **HW2** | **System Call** | Trap Handling, Syscall Registration, `copyout` | 커널 정보 안전 노출 및 **User-Kernel 데이터 통신** 원리 구현 | [Detail View](HW2/README.md) |
-| **HW3** | **Process Scheduling** | Multi-level Queue (MLQ), Linked List, Priority Demotion | **데드락 방지형 스케줄러** 설계 및 Q2/Q1/Q0 상태 천이 로직 구현 | [Detail View](HW3/README.md) |
-| **HW4** | **Paging** | Sv39 Page Table Walk, Bitwise Operations, Recursive Traversal | 가상 주소(VA)에서 물리 주소(PA)로의 변환 경로 증명 및 사용 페이지 수 최적화 계산 | [Detail View](HW4/README.md) |
+| Project | 주제 (Topic) | 핵심 기술 (Key Tech) | 성과 (Achievement Focus) |
+| :---: | :--- | :--- | :--- |
+| **[HW1](HW1/README.md)** | **User Shell** | Fork/Exec, Piping, File Descriptor Management | 복합 쉘 문법 해석 및 유저 레벨 프로세스 흐름 제어 |
+| **[HW2](HW2/README.md)** | **System Call** | Trap Handling, Syscall Registration, `copyout` | 커널 정보 안전 노출 및 **User-Kernel 데이터 통신** 원리 구현 |
+| **[HW3](HW3/README.md)** | **Process Scheduling** | Multi-level Queue (MLQ), Linked List, Priority Demotion | **데드락 방지형 스케줄러** 설계 및 Q2/Q1/Q0 상태 천이 로직 구현 |
+| **[HW4](HW4/README.md)** | **Paging** | Sv39 Page Table Walk, Bitwise Operations, Recursive Traversal | 가상 주소(VA)에서 물리 주소(PA)로의 변환 경로 증명 및 사용 페이지 수 최적화 계산 |
 
 ---
 
