@@ -20,7 +20,7 @@
 | **명령어 처리** | `&`를 이용한 백그라운드 프로세스 실행, I/O 리다이렉션 (`<`, `>`), 파이프 (`|`), 조건 실행 (`&&`, `||`) 등 복잡한 쉘 문법 해석 및 실행 | **프로세스 제어** 및 **파일 디스크립터 관리** (I/O) 원리 이해 |
 
 **결과 화면 (HW1)**
-![HW1 Result: User Shell Execution](images/image-hw1-01.png)
+![HW1 Result: User Shell Execution](HW1/images/image-hw1-01.png)
 
 ### HW2. 시스템 콜 확장 (System Call Extension)
 
@@ -29,7 +29,7 @@
 | **커널-유저 인터페이스** | 유저 영역 프로그램이 커널의 정보를 요청할 수 있도록 3개의 신규 시스템 콜(`sys_getpid`, `sys_getppid`, `sys_getpname`) 구현 | **시스템 콜 호출 과정** (유저 모드 -> 커널 모드 진입, Trap, 레지스터 인자 처리) 및 **프로세스 정보 접근** 방법 숙달 |
 
 **결과 화면 (HW2)**
-![HW2 Result: System Call Test](images/image-hw2-01.png)
+![HW2 Result: System Call Test](HW2/images/image-hw2-01.png)
 
 ### HW3. 다단계 피드백 큐 스케줄러 구현 (Multi-Level Feedback Queue Scheduler, MLFQ)
 
@@ -38,7 +38,7 @@
 | **스케줄링 알고리즘** | Round-Robin 방식의 3단계 큐(Q0, Q1, Q2)로 구성된 MLFQ 스케줄러 구현 및 우선순위 조정 로직 삽입 | **MLFQ 동작 원리** (Aging, Priority Boost, Time Slice) 이해 및 **커널 스케줄링 로직** 직접 수정 (CPU 활용률 개선) |
 
 **결과 화면 (HW3)**
-![HW3 Result: MLFQ Scheduling Result](images/image-hw3-01.png)
+![HW3 Result: MLFQ Scheduling Result](HW3/images/image-hw3-01.png)
 *(Note: whoami 명령어 실행 결과, 프로세스에 할당된 Q0/Q1/Q2의 CPU 점유율을 확인할 수 있음)*
 
 ### HW4. 페이징 시스템 콜 구현 (Paging System Call)
@@ -48,7 +48,7 @@
 | **가상 메모리 탐색** | 가상 주소(VA)를 물리 주소(PA)로 변환하는 `phyaddr()`, 페이지 테이블 인덱스를 추출하는 `ptidx()`, 사용 중인 페이지 개수를 세는 `pgcnt()` 시스템 콜 구현 | **RISC-V Sv39 Paging 구조** (3단계 페이지 테이블) 분석, **VA-PA 변환 로직**의 깊이 있는 이해 및 **재귀적 페이지 테이블 순회** 구현 |
 
 **결과 화면 (HW4)**
-![HW4 Result: Paging System Call Test](images/image-hw4-01.png)
+![HW4 Result: Paging System Call Test](HW4/images/image-hw4-01.png)
 *(Note: `pgtest` 실행 결과, VA가 PA로 정확히 변환되고 유효 페이지 개수가 계산됨을 확인)*
 
 ---
