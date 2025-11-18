@@ -104,4 +104,13 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+
+  // --- [HW3] Process Scheduling Fields ---
+  int q_level;                 // Current Queue Level (0, 1, 2)
+  struct proc *q_next;         // Next process in the queue (Linked List)
+  struct proc *q_prev;         // Previous process in the queue
+  uint64 ticks_q0;             // Ticks spent in Q0 (Wait/Zombie)
+  uint64 ticks_q1;             // Ticks spent in Q1 (Low Priority)
+  uint64 ticks_q2;             // Ticks spent in Q2 (High Priority)
+  // ---------------------------------------
 };

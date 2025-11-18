@@ -135,6 +135,23 @@ syscall(void)
   struct proc *p = myproc();
 
   num = p->trapframe->a7;
+
+  // --- [HW3] Promotion: Q1 -> Q2 on System Call ---
+  // PDF: "If a process buffered in the Q1 makes a system call... moves to the Q2."
+  if (p->q_level == 1) {
+      // Cannot call enqueue/dequeue directly here without lock?
+      // But p is RUNNING (myproc), so it's not in the Run Queue list strictly speaking?
+      // Wait, 'scheduler' removed p from queue when running it?
+      // NO. In our implementation, we traverse the list but don't remove it while running.
+      // So p is still linked in the list. We need lock to modify queue.
+      
+      acquire(&p->lock);
+      dequeue(p);
+      enqueue(p, 2); // Promote to Q2
+      release(&p->lock);
+  }
+  // ------------------------------------------------
+
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     // Use num to lookup the system call function for num, call it,
     // and store its return value in p->trapframe->a0

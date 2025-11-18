@@ -167,6 +167,21 @@ clockintr()
   if(cpuid() == 0){
     acquire(&tickslock);
     ticks++;
+
+    // --- [HW3] Update Process Queue Statistics ---
+    extern struct proc proc[];
+    struct proc *p;
+    for(p = proc; p < &proc[NPROC]; p++){
+        acquire(&p->lock);
+        if(p->state != UNUSED) {
+            if(p->q_level == 2) p->ticks_q2++;
+            else if(p->q_level == 1) p->ticks_q1++;
+            else if(p->q_level == 0) p->ticks_q0++;
+        }
+        release(&p->lock);
+    }
+    // ---------------------------------------------
+
     wakeup(&ticks);
     release(&tickslock);
   }

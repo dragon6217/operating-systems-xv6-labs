@@ -18,6 +18,16 @@ struct spinlock pid_lock;
 extern void forkret(void);
 static void freeproc(struct proc *p);
 
+// --- [HW3] Scheduling Queues & Prototypes ---
+struct proc *q0_head = 0, *q0_tail = 0; // Q0 (Wait/Zombie)
+struct proc *q1_head = 0, *q1_tail = 0; // Q1 (Low Priority)
+struct proc *q2_head = 0, *q2_tail = 0; // Q2 (High Priority)
+
+// Helper functions for Queue Management
+void enqueue(struct proc *p, int q_level);
+void dequeue(struct proc *p);
+// --------------------------------------------
+
 extern char trampoline[]; // trampoline.S
 
 // helps ensure that wakeups of wait()ing
@@ -125,6 +135,14 @@ found:
   p->pid = allocpid();
   p->state = USED;
 
+  // --- [HW3] Initialize Scheduler Fields ---
+  p->q_level = 2;       // Start at Q2 (High Priority)
+  p->ticks_q0 = 0;
+  p->ticks_q1 = 0;
+  p->ticks_q2 = 0;
+  enqueue(p, 2);        // Add to Q2
+  // -----------------------------------------
+
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     freeproc(p);
@@ -155,6 +173,21 @@ found:
 static void
 freeproc(struct proc *p)
 {
+  // --- [HW3] Print Statistics before freeing ---
+  if(p->pid > 2) { // Skip init and sh
+      uint64 total = p->ticks_q0 + p->ticks_q1 + p->ticks_q2;
+      if(total == 0) total = 1; // Avoid division by zero
+      
+      printf("%s (pid=%d): Q2(%d%%): Q1(%d%%): Q0(%d%%)\n",
+          p->name, p->pid,
+          (int)((p->ticks_q2 * 100) / total),
+          (int)((p->ticks_q1 * 100) / total),
+          (int)((p->ticks_q0 * 100) / total));
+  }
+  // Remove from scheduling queue
+  dequeue(p);
+  // ---------------------------------------------
+
   if(p->trapframe)
     kfree((void*)p->trapframe);
   p->trapframe = 0;
@@ -429,6 +462,46 @@ scheduler(void)
 
   c->proc = 0;
   for(;;){
+    // Enable interrupts on this processor.
+    intr_on();
+
+    int ran_q1 = 0; // Did we run a Q1 process in this cycle?
+
+    // 1. Execute All Q2 Processes (Sequential)
+    struct proc *curr_q2 = q2_head;
+    while(curr_q2) {
+        p = curr_q2;
+        // Save next pointer BEFORE running, because p might move queues
+        curr_q2 = curr_q2->q_next; 
+
+        acquire(&p->lock);
+        if(p->state == RUNNABLE) {
+            p->state = RUNNING;
+            c->proc = p;
+            swtch(&c->context, &p->context);
+            c->proc = 0;
+        }
+        release(&p->lock);
+    }
+
+    // 2. Execute ONE Q1 Process
+    struct proc *curr_q1 = q1_head;
+    while(curr_q1 && ran_q1 == 0) {
+        p = curr_q1;
+        curr_q1 = curr_q1->q_next;
+
+        acquire(&p->lock);
+        if(p->state == RUNNABLE) {
+            p->state = RUNNING;
+            c->proc = p;
+            swtch(&c->context, &p->context);
+            c->proc = 0;
+            ran_q1 = 1; // Mark that we ran one process
+        }
+        release(&p->lock);
+    }
+
+    /*
     // The most recent process to run may have had interrupts
     // turned off; enable them to avoid a deadlock if all
     // processes are waiting. Then turn them back off
@@ -459,6 +532,7 @@ scheduler(void)
       // nothing to run; stop running on this core until an interrupt.
       asm volatile("wfi");
     }
+    */
   }
 }
 
@@ -496,6 +570,19 @@ yield(void)
   struct proc *p = myproc();
   acquire(&p->lock);
   p->state = RUNNABLE;
+
+  // --- [HW3] Demotion Logic ---
+  // Timer interrupt calls yield().
+  // If in Q2, demote to Q1 (Whole time slice used).
+  // If in Q1, stay in Q1 (Rotate to tail).
+  dequeue(p);
+  if (p->q_level == 2) {
+      enqueue(p, 1); // Demote Q2 -> Q1
+  } else {
+      enqueue(p, p->q_level); // Rotate in current queue (Q1->Q1)
+  }
+  // ----------------------------
+
   sched();
   release(&p->lock);
 }
@@ -558,6 +645,11 @@ sleep(void *chan, struct spinlock *lk)
   p->chan = chan;
   p->state = SLEEPING;
 
+  // --- [HW3] Move to Q0 (Wait Queue) ---
+  dequeue(p);
+  enqueue(p, 0);
+  // -------------------------------------
+
   sched();
 
   // Tidy up.
@@ -580,6 +672,11 @@ wakeup(void *chan)
       acquire(&p->lock);
       if(p->state == SLEEPING && p->chan == chan) {
         p->state = RUNNABLE;
+
+        // --- [HW3] Wakeup: Move from Q0 to Q2 ---
+        dequeue(p);    // Remove from Q0
+        enqueue(p, 2); // Always promote to Q2 on wakeup
+        // ---------------------------------------
       }
       release(&p->lock);
     }
@@ -688,3 +785,72 @@ procdump(void)
     printf("\n");
   }
 }
+
+
+
+
+
+
+// --- [HW3] Queue Management Implementation ---
+
+// Add process p to the tail of the queue specified by q_level
+void
+enqueue(struct proc *p, int q_level)
+{
+  p->q_level = q_level;
+  p->q_next = 0;
+
+  struct proc **head = 0;
+  struct proc **tail = 0;
+
+  // Select the target queue
+  if (q_level == 0) { head = &q0_head; tail = &q0_tail; }
+  else if (q_level == 1) { head = &q1_head; tail = &q1_tail; }
+  else if (q_level == 2) { head = &q2_head; tail = &q2_tail; }
+  else { panic("enqueue: invalid q_level"); }
+
+  // Add to the tail
+  if (*head == 0) {
+    // First element in the queue
+    *head = p;
+    *tail = p;
+    p->q_prev = 0;
+  } else {
+    // Append to existing tail
+    (*tail)->q_next = p;
+    p->q_prev = *tail;
+    *tail = p;
+  }
+}
+
+// Remove process p from its current queue
+void
+dequeue(struct proc *p)
+{
+  struct proc **head = 0;
+  struct proc **tail = 0;
+  int q_level = p->q_level;
+
+  // Select the target queue
+  if (q_level == 0) { head = &q0_head; tail = &q0_tail; }
+  else if (q_level == 1) { head = &q1_head; tail = &q1_tail; }
+  else if (q_level == 2) { head = &q2_head; tail = &q2_tail; }
+  else { return; } // Already removed or invalid
+
+  // Unlink p from the list
+  if (p->q_prev) {
+    p->q_prev->q_next = p->q_next;
+  } else {
+    *head = p->q_next; // p was head
+  }
+
+  if (p->q_next) {
+    p->q_next->q_prev = p->q_prev;
+  } else {
+    *tail = p->q_prev; // p was tail
+  }
+
+  p->q_next = 0;
+  p->q_prev = 0;
+}
+// ---------------------------------------------
