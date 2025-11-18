@@ -1,64 +1,40 @@
-# Operating System Kernel (xv6-RISC-V) Internals Analysis and Implementation
+# 운영체제 커널 (xv6-RISC-V) 내부 분석 및 구현 연구
 
-## 1. 프로젝트 개요 (Overview)
+이 저장소는 MIT 6.S081 운영체제 교육용 커널인 **xv6 (RISC-V 아키텍처)**를 기반으로, 프로세스 관리, 메모리 관리, 스케줄링 등 OS의 핵심 메커니즘을 심층 분석하고 확장한 프로젝트 모음입니다.
 
-본 프로젝트는 MIT에서 교육용으로 개발된 **xv6 운영체제 (RISC-V 아키텍처 버전)**를 분석하고, 핵심 컴포넌트(쉘, 시스템 콜, 스케줄러, 메모리 관리)를 직접 수정 및 확장함으로써 운영체제의 원리를 심층적으로 이해하는 것을 목표로 합니다.
+본 프로젝트는 **커널 레벨(C 언어)**에서 직접 시스템의 기본 동작 원리를 구현함으로써, 저수준 시스템에 대한 깊은 통찰력과 제어 능력을 증명합니다.
 
-**핵심 기술 및 사용 언어:**
-* **운영체제 커널:** xv6-RISC-V
-* **개발 언어:** C (커널), Shell Script (HW1), C++ (HW5 - 제외)
-* **아키텍처:** RISC-V 64-bit
+## 1. 프로젝트 목표 (Project Goals)
 
----
-
-## 2. 주요 구현 과제 및 기술 성과
-
-### HW1. 쉘 구현 (User Shell Implementation)
-
-| 목표 | 구현 내용 | 성과 |
-| :--- | :--- | :--- |
-| **명령어 처리** | `&`를 이용한 백그라운드 프로세스 실행, I/O 리다이렉션 (`<`, `>`), 파이프 (`|`), 조건 실행 (`&&`, `||`) 등 복잡한 쉘 문법 해석 및 실행 | **프로세스 제어** 및 **파일 디스크립터 관리** (I/O) 원리 이해 |
-
-**결과 화면 (HW1)**
-
-![HW1 Result: User Shell Execution](HW1/images/image-hw1-01.png)
-
-### HW2. 시스템 콜 확장 (System Call Extension)
-
-| 목표 | 구현 내용 | 성과 |
-| :--- | :--- | :--- |
-| **커널-유저 인터페이스** | 유저 영역 프로그램이 커널의 정보를 요청할 수 있도록 3개의 신규 시스템 콜(`sys_getpid`, `sys_getppid`, `sys_getpname`) 구현 | **시스템 콜 호출 과정** (유저 모드 -> 커널 모드 진입, Trap, 레지스터 인자 처리) 및 **프로세스 정보 접근** 방법 숙달 |
-
-**결과 화면 (HW2)**
-
-![HW2 Result: System Call Test](HW2/images/image-hw2-01.png)
-
-### HW3. 다단계 피드백 큐 스케줄러 구현 (Multi-Level Feedback Queue Scheduler, MLFQ)
-
-| 목표 | 구현 내용 | 성과 |
-| :--- | :--- | :--- |
-| **스케줄링 알고리즘** | Round-Robin 방식의 3단계 큐(Q0, Q1, Q2)로 구성된 MLFQ 스케줄러 구현 및 우선순위 조정 로직 삽입 | **MLFQ 동작 원리** (Aging, Priority Boost, Time Slice) 이해 및 **커널 스케줄링 로직** 직접 수정 (CPU 활용률 개선) |
-
-**결과 화면 (HW3)**
-
-![HW3 Result: MLFQ Scheduling Result](HW3/images/image-hw3-01.png)
-
-*(Note: whoami 명령어 실행 결과, 프로세스에 할당된 Q0/Q1/Q2의 CPU 점유율을 확인할 수 있음)*
-
-### HW4. 페이징 시스템 콜 구현 (Paging System Call)
-
-| 목표 | 구현 내용 | 성과 |
-| :--- | :--- | :--- |
-| **가상 메모리 탐색** | 가상 주소(VA)를 물리 주소(PA)로 변환하는 `phyaddr()`, 페이지 테이블 인덱스를 추출하는 `ptidx()`, 사용 중인 페이지 개수를 세는 `pgcnt()` 시스템 콜 구현 | **RISC-V Sv39 Paging 구조** (3단계 페이지 테이블) 분석, **VA-PA 변환 로직**의 깊이 있는 이해 및 **재귀적 페이지 테이블 순회** 구현 |
-
-**결과 화면 (HW4)**
-
-![HW4 Result: Paging System Call Test](HW4/images/image-hw4-01.png)
-
-*(Note: `pgtest` 실행 결과, VA가 PA로 정확히 변환되고 유효 페이지 개수가 계산됨을 확인)*
+* **시스템 콜 인터페이스:** User Space와 Kernel Space 간의 안전한 데이터 통신 및 프로세스 정보 노출 시스템 구축.
+* **커널 스케줄러 설계:** 단순 Round-Robin을 탈피한 Multi-Level Queue (MLQ) 기반의 우선순위 스케줄링 알고리즘 직접 구현.
+* **가상 메모리 분석:** RISC-V Sv39 Paging 구조를 탐색하는 도구를 구현하여 VA-PA 변환 과정 및 메모리 사용 현황 시각화.
 
 ---
 
-## 3. 결론
+## 2. 프로젝트 개요 (Labs Overview)
 
-본 프로젝트를 통해 프로세스 관리, 메모리 관리, 스케줄링 등 현대 운영체제의 핵심 기능을 커널 레벨(C 언어)에서 직접 구현 및 디버깅할 수 있는 능력을 확보했습니다. 이는 로우 레벨 시스템의 동작 원리에 대한 깊은 이해를 제공합니다.
+총 4개의 핵심 과제를 통해 **프로세스 제어부터 메모리 관리까지**의 영역을 모두 커버했습니다.
+
+| Project | 주제 (Topic) | 핵심 기술 (Key Tech) | 성과 (Achievement Focus) | 상세 보기 |
+| :---: | :--- | :--- | :--- | :---: |
+| **HW1** | **User Shell** | Fork/Exec, Piping, File Descriptor Management | 복합 쉘 문법 해석 및 유저 레벨 프로세스 흐름 제어 | [Detail View](HW1/README.md) |
+| **HW2** | **System Call** | Trap Handling, Syscall Registration, `copyout` | 커널 정보 안전 노출 및 **User-Kernel 데이터 통신** 원리 구현 | [Detail View](HW2/README.md) |
+| **HW3** | **Process Scheduling** | Multi-level Queue (MLQ), Linked List, Priority Demotion | **데드락 방지형 스케줄러** 설계 및 Q2/Q1/Q0 상태 천이 로직 구현 | [Detail View](HW3/README.md) |
+| **HW4** | **Paging** | Sv39 Page Table Walk, Bitwise Operations, Recursive Traversal | 가상 주소(VA)에서 물리 주소(PA)로의 변환 경로 증명 및 사용 페이지 수 최적화 계산 | [Detail View](HW4/README.md) |
+
+---
+
+## 3. 개발 환경 (Environments & Tools)
+
+* **타겟 OS:** xv6-RISC-V Kernel
+* **개발 환경:** Linux (Ubuntu 24.04 LTS via WSL2)
+* **에뮬레이터:** QEMU (RISC-V 64-bit)
+* **언어:** C, Shell Script
+* **도구:** GCC (riscv64-unknown-elf-gcc Cross-Compiler), Git
+
+---
+
+## 4. 결론
+
+본 프로젝트는 저수준 시스템의 동작 원리에 대한 깊은 이해를 제공하며, 시스템 엔지니어링 역량을 증명하는 핵심 포트폴리오입니다.
