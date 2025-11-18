@@ -1,25 +1,32 @@
-# --- Existing rules ---
-ysh
-*.o
-console
+# --- Global Ignore ---
 .vscode/
 .DS_Store
+*.swp
 **/ori-*
 
-# --- xv6 Specific Ignore Rules (Apply to HW2, HW3...) ---
-# Build Artifacts
-*.d
-*.asm
-*.sym
+# --- Assignment 1 (ysh) ---
+ysh
 *.o
 
-# Generated Binaries & Images
-_*(
-fs.img
-mkfs/mkfs
-kernel/kernel
-user/usys.S
-user/_*
+# --- Assignment 2, 3, 4 (xv6-riscv) ---
+# 1. Object files & Dependencies
+*.o
+*.d
 
-# GDB
+# 2. Generated Binaries & Images
+fs.img
 .gdbinit
+
+# 3. Kernel compiled binaries
+kernel/kernel
+kernel/*.asm
+kernel/*.sym
+
+# 4. User program compiled binaries (xv6 binaries start with _)
+user/_*
+user/usys.S
+user/*.asm
+user/*.sym
+
+# 5. Tools
+mkfs/mkfs
