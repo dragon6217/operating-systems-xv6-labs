@@ -1,13 +1,25 @@
-# Compiled Binary
+# --- Existing rules ---
 ysh
 *.o
-
-# Legacy xv6 artifacts
 console
-
-# Editor/IDE configs
 .vscode/
 .DS_Store
-
-# Skeleton codes
 **/ori-*
+
+# --- xv6 Specific Ignore Rules (Apply to HW2, HW3...) ---
+# Build Artifacts
+*.d
+*.asm
+*.sym
+*.o
+
+# Generated Binaries & Images
+_*(
+fs.img
+mkfs/mkfs
+kernel/kernel
+user/usys.S
+user/_*
+
+# GDB
+.gdbinit
