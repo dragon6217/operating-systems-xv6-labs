@@ -8,3 +8,6 @@ console
 # Editor/IDE configs
 .vscode/
 .DS_Store
+
+# Skeleton codes
+**/ori-*
