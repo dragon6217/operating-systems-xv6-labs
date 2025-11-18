@@ -107,3 +107,42 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+
+
+/**
+ * @brief Retrieves the process ID of the parent process (PPID).
+ * @return Parent PID, or 0 if the parent does not exist (e.g., init process).
+ */
+uint64
+sys_getppid(void)
+{
+  struct proc *p = myproc();
+  
+  if (p->parent) {
+    return p->parent->pid;
+  }
+  return 0;
+}
+
+/**
+ * @brief Copies the name of the current process into a user-provided buffer.
+ * @return 0 on success, -1 on failure (e.g., invalid address or page fault).
+ */
+uint64
+sys_getpname(void)
+{
+  uint64 addr;
+  struct proc *p = myproc();
+
+  // Fetch the destination address from the 0th system call argument.
+  argaddr(0, &addr);
+
+  // Safely copy the process name from kernel space to user space.
+  // copyout() handles virtual-to-physical address translation via the page table.
+  if(copyout(p->pagetable, addr, p->name, 16) < 0)
+    return -1;
+
+  return 0;
+}
