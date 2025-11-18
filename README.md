@@ -42,6 +42,7 @@
 **결과 화면 (HW3)**
 
 ![HW3 Result: MLFQ Scheduling Result](HW3/images/image-hw3-01.png)
+
 *(Note: whoami 명령어 실행 결과, 프로세스에 할당된 Q0/Q1/Q2의 CPU 점유율을 확인할 수 있음)*
 
 ### HW4. 페이징 시스템 콜 구현 (Paging System Call)
@@ -53,6 +54,7 @@
 **결과 화면 (HW4)**
 
 ![HW4 Result: Paging System Call Test](HW4/images/image-hw4-01.png)
+
 *(Note: `pgtest` 실행 결과, VA가 PA로 정확히 변환되고 유효 페이지 개수가 계산됨을 확인)*
 
 ---
